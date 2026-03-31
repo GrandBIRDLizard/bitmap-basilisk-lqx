@@ -118,18 +118,8 @@ That is the whole idea:
 
 This is not a “kitchen sink” scheduler patch.
 
-It is a focused refinement of BMQ for users who care about:
-
-- desktop responsiveness
-- game smoothness
-- mixed-workload stability
-- cache-sensitive X3D behavior
-- deterministic policy control through `x3dctl`
-- practical scheduler experimentation through `sched_ext`
-- a cleaner low-latency desktop kernel through broader LQX improvements
-
 ---
-##Build notes
+## Build notes
 
 This project currently targets an Arch Linux / makepkg-style workflow.
 
@@ -146,11 +136,11 @@ This repository is currently intended for advanced users testing on their own ha
 
 ---
 
-##License
+## License
 
 This project is licensed under GPL-2.0-only.
 
-###Contact
+### Contact
 
 Please use repository issues for:
 - build failures
