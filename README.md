@@ -24,40 +24,8 @@ This project is currently a **GitHub-first development/test kernel** and is **no
 - **scheduler experimentation**
 - **better policy alignment with `x3dctl`**
 
-The current direction prefers:
-
-- **`sched_ext` support**
-- **BPF / BTF support**
-- **X3D / AMD topology-aware settings**
-- **1000 Hz + high-resolution timer baseline**
-- **BMQ / `SCHED_ALT` when the tree supports it cleanly**
-
-This is not meant to be a generic “everything enabled” kernel.  
-It is meant to be a **small, testable, policy-friendly kernel base**.
-
 ---
 
-## Why it exists
-
-Modern X3D desktop workloads are often mixed:
-
-- gaming
-- compiling
-- recording
-- desktop interaction
-- background services
-
-The goal of this project is to make that behavior **more predictable** by reducing scheduler noise, preserving responsiveness, and creating a cleaner kernel-side base for user-space policy tools.
-
-In practice, the project is aimed at:
-
-- better **desktop responsiveness under load**
-- smoother **frame pacing**
-- lower **jitter**
-- better **cache-sensitive behavior**
-- easier **scheduler validation and experimentation**
-
----
 
 ## Relationship to x3dctl
 
