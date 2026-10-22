@@ -3,12 +3,9 @@
 #
 # Copyright (C) 2026 GrandBIRDLizard
 #
-# bitmap-basilisk kernel config policy
+# bitmap-basilisk kernel config policy (Kernel 7.0+ / X3D / Sched-Alt)
 # Applied after patching and before final olddefconfig/build.
 # Root-level intentionally during pre-AUR development.
-set -euo pipefail
-
-
 set -euo pipefail
 
 cfg() {
@@ -94,10 +91,10 @@ warn_if_not() {
   esac
 }
 
-echo "[*] Applying Bitmap-Basilisk X3D Policy (Liquorix-safe, 6.19+)..."
+echo "[*] Applying Bitmap-Basilisk X3D Policy (Liquorix-safe, 7.0+)..."
 
 # ------------------------------------------------------------
-# Advanced scheduler / BPF / BMQ infrastructure
+# Scheduler/BPF/BMQ modules
 
 try_enable DEBUG_INFO
 try_enable DEBUG_INFO_BTF
@@ -106,7 +103,7 @@ try_enable BPF_SYSCALL
 try_enable BPF_JIT
 try_enable BPF_EVENTS
 
-# sched-ext if present in this tree
+# sched-ext if present 
 try_enable SCHED_CLASS_EXT
 
 # Alternate scheduler baseline: BMQ only
@@ -114,20 +111,22 @@ try_enable SCHED_ALT
 try_enable SCHED_BMQ
 try_disable SCHED_PDS
 
-# ------------------------------------------------------------
-# X3D / AMD topology-friendly settings
 
+# X3D topology settings
 try_enable AMD_3D_VCACHE
 try_enable X86_AMD_PSTATE
 try_enable ACPI_CPPC_LIB
 try_enable X86_MSR
 
-# Optional / tree-dependent
-try_enable X86_AMD_PSTATE_DEFAULT_MODE_EPP
-try_enable SCHED_MC_PRIO
+# AMD P-State active mode
+try_enable X86_AMD_PSTATE_DEFAULT_MODE_ACTIVE
+try_disable X86_AMD_PSTATE_DEFAULT_MODE_EPP
 
-# ------------------------------------------------------------
-# Latency / tick / jitter tuning
+# Disable generic NUMA balancing to avoid cache-hopping on X3D 
+try_disable NUMA_BALANCING
+
+
+# Latency/tick/jitter tuning
 
 try_enable HZ_1000
 try_disable HZ_300
@@ -137,22 +136,22 @@ try_disable HZ_100
 try_enable HIGH_RES_TIMERS
 try_enable NO_HZ_IDLE
 
-# Optional advanced isolation-capable path
+# Optional advanced isolation
 try_enable NO_HZ_FULL
 try_disable NO_HZ_FULL_ALL
 try_enable CONTEXT_TRACKING
 try_enable VIRT_CPU_ACCOUNTING_GEN
 try_enable RCU_NOCB_CPU
 
-# ------------------------------------------------------------
-# Hardware / debug / introspection
+
+# Hardware/debug
 
 try_module DRM_AMDGPU
 try_enable IKCONFIG
 try_enable IKCONFIG_PROC
 try_enable SCHED_DEBUG
 
-# Console fonts if present
+# Console fonts 
 try_disable FONTS
 try_enable FONT_8x8
 try_enable FONT_8x16
@@ -163,23 +162,21 @@ make olddefconfig
 
 echo "[*] Validating Bitmap-Basilisk baseline..."
 
-# ------------------------------------------------------------
-# Preferred scheduler baseline (best-effort for now)
+# Scheduler baseline (best-effort for now)
 
 warn_if_not SCHED_CLASS_EXT y
 warn_if_not SCHED_ALT y
 warn_if_not SCHED_BMQ y
 warn_if_not SCHED_PDS n
 
-# ------------------------------------------------------------
-# Strongly desired core latency baseline (hard fail)
+
+# Core latency baseline (hard fail)
 
 require_set HZ_1000 y
 require_set HIGH_RES_TIMERS y
 require_set NO_HZ_IDLE y
 
-# ------------------------------------------------------------
-# Best-effort / tree-dependent features (warn only)
+# Best-effort/tree-dependent features (warn only)
 
 warn_if_not DEBUG_INFO y
 warn_if_not DEBUG_INFO_BTF y
@@ -192,8 +189,7 @@ warn_if_not AMD_3D_VCACHE y
 warn_if_not X86_AMD_PSTATE y
 warn_if_not ACPI_CPPC_LIB y
 warn_if_not X86_MSR y
-warn_if_not X86_AMD_PSTATE_DEFAULT_MODE_EPP y
-warn_if_not SCHED_MC_PRIO y
+warn_if_not NUMA_BALANCING n
 
 warn_if_not NO_HZ_FULL y
 warn_if_not NO_HZ_FULL_ALL n
@@ -213,4 +209,4 @@ warn_if_not FONT_8x16 y
 echo
 echo "[*] Bitmap-Basilisk config policy complete."
 echo "[*] Final selected config summary:"
-grep -E '^(CONFIG_(SCHED_ALT|SCHED_BMQ|SCHED_PDS|SCHED_CLASS_EXT|BPF|BPF_SYSCALL|BPF_JIT|BPF_EVENTS|DEBUG_INFO|DEBUG_INFO_BTF|X86_AMD_PSTATE|ACPI_CPPC_LIB|X86_MSR|IKCONFIG|IKCONFIG_PROC|HZ_1000|NO_HZ_FULL|NO_HZ_IDLE)=|# CONFIG_SCHED_PDS is not set)' .config || true
+grep -E '^(CONFIG_(SCHED_ALT|SCHED_BMQ|SCHED_PDS|SCHED_CLASS_EXT|BPF|BPF_SYSCALL|BPF_JIT|BPF_EVENTS|DEBUG_INFO|DEBUG_INFO_BTF|X86_AMD_PSTATE|ACPI_CPPC_LIB|X86_MSR|IKCONFIG|IKCONFIG_PROC|HZ_1000|NO_HZ_FULL|NO_HZ_IDLE)=|# CONFIG_SCHED_PDS is not set|# CONFIG_NUMA_BALANCING is not set)' .config || true
